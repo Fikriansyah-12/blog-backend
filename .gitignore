@@ -12,6 +12,12 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# ignore file config sensitif
+src/config/database.config.ts
+src/config/database.config.js
+**/database.config.ts
+**/database.config.js
+
 # OS
 .DS_Store
 
