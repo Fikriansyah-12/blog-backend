@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -13,7 +17,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private jwtService:JwtService,
+    private jwtService: JwtService,
   ) {}
 
   async registerUSer(registerDto: RegisterDto): Promise<{ message: string }> {
@@ -34,39 +38,55 @@ export class AuthService {
       throw new ConflictException('Name is alredy exist');
     }
 
-    const userData = await this.userRepository.find()
-    const roleUser:Role = userData.length === 0 ? Role.ADMIN : Role.USER
+    const userData = await this.userRepository.find();
+    const roleUser: Role = userData.length === 0 ? Role.ADMIN : Role.USER;
 
     const newUser = await this.userRepository.create({
       ...registerDto,
       password: hashPassword,
-      role: roleUser
+      role: roleUser,
     });
 
-    await this.userRepository.save(newUser)
+    await this.userRepository.save(newUser);
     return {
-        message: 'Register User Berhasil'
-    }
+      message: 'Register User Berhasil',
+    };
   }
 
-  async loginUser(loginDto: LoginDto):Promise<{ access_token: string; user: { id: string; name: string; email: string; role?: string } }>{
+  async loginUser(
+    loginDto: LoginDto,
+  ): Promise<{
+    access_token: string;
+    user: { id: string; name: string; email: string; role?: string };
+  }> {
     const user = await this.userRepository.findOne({
-        where:{email:loginDto.email},
-        select: { id: true, name: true, email: true, password: true },
-    })
+      where: { email: loginDto.email },
+      select: { id: true, name: true, email: true, password: true,},
+    });
 
     if (!user) {
-        throw new UnauthorizedException("Invalid Credentials")
+      throw new UnauthorizedException('Invalid Credentials');
     }
-    if (!(await bcrypt.compare (loginDto.password, user.password))) {
-        throw new UnauthorizedException("Invalid Credentials")
+    if (!(await bcrypt.compare(loginDto.password, user.password))) {
+      throw new UnauthorizedException('Invalid Credentials');
     }
-    const payload = {id: user.id, email: user.email, role: user.role}
-
+    const payload = { id: user.id, email: user.email, };
 
     return {
-        user: { id: user.id, name: (user as any).name, email: user.email, role: (user as any).role?.name ?? (user as any).role },
-        access_token: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      access_token: await this.jwtService.signAsync(payload),
+    };
+  }
+
+  async getUser(id: string): Promise<User | null> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (user?.password) {
+      user.password = '***********';
     }
+    return user;
   }
 }
