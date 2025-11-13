@@ -61,7 +61,7 @@ export class AuthService {
   }> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      select: { id: true, name: true, email: true, password: true,},
+      select: { id: true, name: true, email: true, password: true, role: true},
     });
 
     if (!user) {
@@ -70,13 +70,14 @@ export class AuthService {
     if (!(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Invalid Credentials');
     }
-    const payload = { id: user.id, email: user.email, };
+    const payload = { id: user.id, email: user.email, role: user.role };
 
     return {
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role
       },
       access_token: await this.jwtService.signAsync(payload),
     };
