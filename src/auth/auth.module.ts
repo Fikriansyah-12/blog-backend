@@ -6,12 +6,13 @@ import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { config } from 'dotenv'
 import { jwtConstans } from './constan';
+import { Profile } from 'src/profile/entities/profile.entity';
 
 config()
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,Profile]),
     JwtModule.register({
       secret: jwtConstans.secret,
       signOptions: {expiresIn: '7d'}

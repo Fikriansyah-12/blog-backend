@@ -12,21 +12,27 @@ export class UsersService {
     ){}
 
     async findAllUser():Promise<User[]>{
-        const user = await this.userRepository.find()
-        user.forEach((users) => {
-            if(users.password){
-                users.password = "*********"
+        const user = await this.userRepository.find({
+            relations: ['profile'],
+            select: {
+                id:true,
+                name:true,
+                email:true,
+                role:true,
+                profile: {
+                    age: true,
+                    bio: true
+                },
+                createdAt: true,
+                updatedAt: true
             }
         })
-        console.log(user,'users hashing');
         return user
     }
 
     async findByParams(id:string):Promise<User | null>{
        const user = await this.userRepository.findOneBy({id})
-        if (user?.password) {
-      user.password = '***********';
-    }
+
     return user;
     }
 

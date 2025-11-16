@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
 import { ArticleStatus } from "../interface/article.interface";
 export class createArticleDto {
 
@@ -13,4 +13,8 @@ export class createArticleDto {
     @IsEnum(ArticleStatus)
     @IsNotEmpty()
     status:ArticleStatus
+
+    @IsNotEmpty()
+    @IsUUID()
+     categoryId: string
 }

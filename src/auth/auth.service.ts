@@ -61,11 +61,13 @@ export class AuthService {
   }> {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      select: { id: true, name: true, email: true, password: true, role: true},
+      select: { id: true, name: true, email: true, password: true, role: true, },
     });
 
     if (!user) {
+      
       throw new UnauthorizedException('Invalid Credentials');
+      
     }
     if (!(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Invalid Credentials');
@@ -78,16 +80,14 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role
-      },
+      },      
       access_token: await this.jwtService.signAsync(payload),
     };
   }
 
   async getUser(id: string): Promise<User | null> {
     const user = await this.userRepository.findOneBy({ id });
-    if (user?.password) {
-      user.password = '***********';
-    }
+    
     return user;
   }
 }
